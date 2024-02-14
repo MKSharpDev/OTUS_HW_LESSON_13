@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -25,6 +26,7 @@ namespace OTUS_HW_LESSON_13
             }
             return typessSB.ToString();
         }
+
         string GetValues<T>(T t, string[]? info) where T : class
         {
             StringBuilder valuesSB = new StringBuilder();
@@ -83,6 +85,52 @@ namespace OTUS_HW_LESSON_13
             return line.ToString();
         }
 
+        public T DeserealizeObject<T>(string str) where T : class
+        {
+            string[] separator = { Environment.NewLine };
+            var arr = str.Split(separator, StringSplitOptions.RemoveEmptyEntries);
 
+            string[] types = arr[0].Split(", ");
+            string[] values = arr[1].Split(", ");
+
+            T result = Activator.CreateInstance<T>();
+
+            Type type = result.GetType();
+
+            for (int i = 0; i < types.Length; i++)
+            {
+                type.GetField(types[i]).SetValue(result,  int.Parse(values[i]));
+            }
+
+            return result;
+        }
+
+        public List<T> DeserealizeList<T>(string str) where T : class
+        {
+            string[] separator = { Environment.NewLine };
+            var arr = str.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+
+
+            string[] types = arr[0].Split(", ");
+
+            List<T> result = new List<T>();
+
+            for (int i = 1; i < arr.Length; i++)
+            {
+                T res = Activator.CreateInstance<T>();
+
+                Type type = res.GetType();
+                string[] values = arr[i].Split(", ");
+
+                for (int j = 0; j < types.Length; j++)
+                {
+                    type.GetField(types[j]).SetValue(res, int.Parse(values[j]));
+                }
+                result.Add(res);
+            }
+
+
+            return result;
+        }
     }
 }
